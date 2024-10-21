@@ -1,0 +1,81 @@
+package application;
+
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.layout.GridPane;
+import javafx.stage.Stage;
+
+public class UsaBancomat extends Application {
+
+    private Bancomat bancomat;
+
+    public void start(Stage primaryStage) {
+        bancomat = new Bancomat();
+        initAccounts();
+
+        GridPane grid = new GridPane();
+        TextField pinField = new TextField();
+        TextField amountField = new TextField();
+        TextArea outputArea = new TextArea();
+        outputArea.setEditable(false);
+
+        grid.add(new Label("PIN:"), 0, 0);
+        grid.add(pinField, 1, 0);
+        grid.add(new Label("Importo:"), 0, 1);
+        grid.add(amountField, 1, 1);
+        grid.add(createButton("Preleva", pinField, amountField, outputArea, true), 0, 2);
+        grid.add(createButton("Versa", pinField, amountField, outputArea, false), 1, 2);
+        grid.add(createBalanceButton(pinField, outputArea), 0, 3);
+        grid.add(outputArea, 0, 4, 2, 1);
+
+        Scene scene = new Scene(grid, 400, 300);
+        primaryStage.setTitle("Bancomat");
+        primaryStage.setScene(scene);
+        primaryStage.show();
+    }
+
+    private void initAccounts() {
+        bancomat.addConto(new ContoCorrente("1234", 1000.0));
+        bancomat.addConto(new ContoCorrente("5678", 1500.0));
+        bancomat.addConto(new ContoCorrente("9101", 2000.0));
+    }
+
+    private Button createButton(String text, TextField pinField, TextField amountField, TextArea outputArea, boolean isWithdrawal) {
+        Button button = new Button(text);
+        button.setOnAction(e -> {
+            String pin = pinField.getText();
+            if (!bancomat.isPinCorretto(pin)) {
+                outputArea.appendText("PIN non valido.\n");
+                return;
+            }
+
+            try {
+                double amount = Double.parseDouble(amountField.getText());
+                boolean success = isWithdrawal ? bancomat.preleva(pin, amount) : bancomat.versa(pin, amount);
+                outputArea.appendText(success ? "Operazione riuscita.\n" : "Operazione non riuscita.\n");
+            } catch (NumberFormatException ex) {
+                outputArea.appendText("Importo non valido.\n");
+            }
+        });
+        return button;
+    }
+
+    private Button createBalanceButton(TextField pinField, TextArea outputArea) {
+        Button button = new Button("Controlla Saldo");
+        button.setOnAction(e -> {
+            String pin = pinField.getText();
+            if (!bancomat.isPinCorretto(pin)) {
+                outputArea.appendText("PIN non valido.\n");
+                return;
+            }
+            double saldo = bancomat.gestSaldo(pin);
+            outputArea.appendText("Saldo attuale: " + saldo + "\n");
+        });
+        return button;
+    }
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+}
