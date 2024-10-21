@@ -1,0 +1,71 @@
+package application;
+
+import java.util.ArrayList;
+
+public class Bancomat {
+    
+    ArrayList<ContoCorrente> listaC;
+    
+    public Bancomat() {
+    	
+        listaC = new ArrayList<>();
+        
+    }
+    
+    public void addConto(ContoCorrente c1) {
+    	
+        listaC.add(c1);
+    }
+    
+    public boolean preleva(String pin, double importo) {
+    	
+        for (ContoCorrente c1 : listaC) {
+        	
+            if (c1.pin.equals(pin)) {
+            	
+                if (c1.saldo >= importo) {
+                	
+                    c1.saldo -= importo;
+                    
+                    return true;
+                }
+            }
+        }
+        
+        return false;
+    }
+    
+    public boolean versa(String pin, double importo) {
+    	
+        for (ContoCorrente c1 : listaC) {
+        	
+            if (c1.pin.equals(pin)) {
+            	
+                c1.saldo += importo;
+                
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    public double gestSaldo(String pin) {
+    	
+        for (ContoCorrente c1 : listaC) {
+        	
+            if (c1.pin.equals(pin)) {
+            	
+                return c1.saldo;
+            }
+        }
+        return 0;
+    }
+    public boolean isPinCorretto(String pin) {
+        for (ContoCorrente c1 : listaC) {
+            if (c1.getPin().equals(pin)) {
+                return true;
+            }
+        }
+        return false;
+    }
+}
